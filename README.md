@@ -15,3 +15,18 @@ Debian OS family:
 # apt install texlive-science texlive-latex-base
 # pdflatex foo.tex
 ```
+
+# live edit a paper
+===================
+
+```
+# docker run --rm -it -v $(pwd):/home danteev/texlive:TL2017 latexmk foo.tex
+```
+
+Beware, it gets quite a fat image of a 6G, it may be faster for you to build it
+locally by hand:
+```
+# git clone https://github.com/dante-ev/docker-texlive
+# cd docker-texlive
+# docker build .
+```

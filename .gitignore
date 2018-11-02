@@ -3,3 +3,6 @@
 .*.sw?
 *.log
 *.aux
+*.fls
+*.fdb_latexmk
+*.dvi
