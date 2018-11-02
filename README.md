@@ -7,6 +7,16 @@ See also:
 * [Template source](https://www.ieee.org/content/dam/ieee-org/ieee/web/org/conferences/Conference-LaTeX-template_7-9-18.zip) -
   it is also stored in `./examples`.
 
+# in the current development (looking for co-authors!)
+
+A position paper for [ICFC 2019](http://conferences.computer.org/ICFC/2019/),
+IEEE International Conference on Cloud Engineering, 2019.
+
+Please contribute for [draft contents](./ICFC-2019/contents.md), deadline is
+Nov 8, 2018 (but may be extended hopefully). To add you as an author, please
+let me know (mailto:bdobreli@redhat.com, #bogdando at freenode IRC) your EDAS ID.
+To register, visit [EDAS info page](https://edas.info).
+
 # build steps
 
 Debian OS family:
