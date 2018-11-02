@@ -12,15 +12,15 @@ See also:
 Debian OS family:
 
 ```
-# apt install texlive-science texlive-latex-base
+# apt install texlive-science texlive-latex-base gv
 # pdflatex foo.tex
 ```
 
-# live edit a paper
-===================
+Via container:
 
 ```
-# docker run --rm -it -v $(pwd):/home danteev/texlive:TL2017 latexmk foo.tex
+# docker run --rm -it -v $(pwd):/home danteev/texlive:TL2017 \
+    texliveonfly -c latexmk -a "-pdf -f -synctex=0" foo.tex
 ```
 
 Beware, it gets quite a fat image of a 6G, it may be faster for you to build it
@@ -30,3 +30,7 @@ locally by hand:
 # cd docker-texlive
 # docker build .
 ```
+
+# live update for compiled pdf
+
+Use ``gv -watch foo.pdf``.
