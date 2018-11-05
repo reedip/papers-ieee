@@ -10,13 +10,13 @@ changes and data need to be eventually synchronized back to the central site(s)
 with having its merge-conflicts resolved for the central data hub(s). While
 some data needs to be pushed from the central site(s) to the Edge, which might
 require resolving data collisions at the remote sites as well. In this paper,
-we position the outstanding data synchronization problems for OpenStack cloud
-platform becoming a solution number one for fog computing. We outline the data
-consistency requirements and design approaches to meet the AA (Always
-Available) autonomy expectations. Finally, the paper brings the vision of
-unified tooling, which solves the data synchronization problems the same way
-for infrastructure owners, IaaS cloud operators and tenants running  workloads
-for PaaS like OpenShift or Kubernetes deployed on top of  OpenStack. The
-secondary goal of this work is to help cloud architects and developers to
-federate stateful cloud components over reliable distributed data backends and
-having its failure modes known.
+we position the outstanding data synchronization problems for OpenStack
+platform becoming a cloud solution number one for fog computing. We define the
+inter-cloud operational invariants based on that Always Available autonomy
+requirement. We show that a causally consistent key value storage is the best
+match for the outlined operational invariants and there is a great opportunity
+for designing such a solution for Edge clouds. Finally, the paper brings the
+vision of unified tooling to solve the data synchronization problems the same
+way for infrastructure owners, IaaS cloud operators and tenants running
+workloads for PaaS, like OpenShift or Kubernetes deployed on top of Edge
+clouds.
