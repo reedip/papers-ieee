@@ -60,23 +60,23 @@ processing and operational points of view:
 
 \subsection{Deployment Data}
 
-Data that represents the configuration of cloudlets \cite{b3}, like API
-endpoints URI, or numbers of deployed edge nodes \cite{b3} in edge clouds
-\cite{b3}. That data represents the most recent state of a deployment.
+Data that represents the configuration of \textit{cloudlets} \cite{b3}, like
+API endpoints URI, or numbers of deployed \textit{edge nodes} \cite{b3} in
+\textit{edge clouds} \cite{b3}. That data represents the most recent state of a
+deployment.
 
 \subsection{Cloud Data}
 
-Represents the most recent internal and publicly visible state of cloudlets,
-like cloud users or virtual routers. Cloud data also includes logs, performance
-and usage statistics, state of message queues and the contents of databases.
-When we refer to just data, we do not differentiate either that is deployment
-or control data. When there is unresolved data merging conflicts, the most
-recent state becomes the best known state.
+Represents the most recent \footnote{when there is unresolved data merging
+conflicts, the most recent state becomes the best known state} internal and
+publicly visible state of cloudlets, like cloud users or virtual routers. Cloud
+data also includes logs, performance and usage statistics, state of message
+queues and the contents of databases.
 
-\subsection{Control Plane (CP)}
+\subsection{Control Plane}
 
-Corresponds to any operations performed via cloudlets API endpoints
-or CLI tooling. For example, starting a virtual machine instance, or creating a
+Corresponds to any operations performed via cloudlets API endpoints or command
+line tooling. For example, starting a virtual machine instance, or creating a
 cloud user. Such operations are typically initiated by cloud applications,
 tenants or operators.
 
@@ -84,20 +84,21 @@ tenants or operators.
 
 Corresponds to administrative actions performed via configuration and lifecycle
 management systems. Such operations are typically targeted for cloudlets, like
-edge nodes, edge datacenters \cite{b3}, or edge clouds. For example, upgrading
-or reconfiguring the centralized data center \cite{b3}, or scaling up edge
-nodes. And typically initiated by cloud infrastructure owners. For some
-extendned cases, like Baremetal-as-a-Service, tenants may as well initiate
-actions executed via the management plane. Collecting logs, performance and
-usage statistics for monitoring and alerting systems also represents the
-management plane operations, although it operates with the cloud data.
+edge nodes, \textit{edge data centers} \cite{b3}, or edge clouds. E.g.,
+upgrading or reconfiguring cloudlets in a \textit{virtual data center}
+\cite{b3}, or scaling up edge nodes. And typically initiated by cloud
+infrastructure owners.  For some cases, like Baremetal-as-a-Service, tenants
+may as well initiate actions executed via the management plane. Collecting
+logs, performance and usage statistics for monitoring and alerting systems also
+represents the management plane operations, although it operates with the cloud
+data.
 
-\subsection{Always Available (AA)}
+\subsection{Always Available}
 
 The operational mode of the control and management planes that corresponds to
-the best for today choices for the sticky available consistency models
-\cite{b4}, which is like Real-Time Causal \cite{b2}, or causal+ \cite{b1}.
-The
+the best for today choices for the \textit{sticky available}\cite{b4}
+consistency models, e.g. \textit{Real-Time Causal} \cite{b2}, or
+\textit{causal+} \cite{b1}.
 
 \section{Introduction}
 
@@ -105,16 +106,44 @@ The
 
 \subsection{Autonomy Requirements}
 
-We define autonomy requirements for Edge sites as the following:
+We define always available autonomy for cloudlets as the following strict
+requirements:
 
 \begin{itemize}
-\item Foo
+  \item any operations performed on cloudlets state \footnote{despite the
+    cloudlets aliveness or failure conditions} fit data consistency models that
+    allow the involved control/management planes operating as always available,
+    and there is no read-only or blocking access limitations.
+  \item cloudlets data can be modified at any given moment of time, despite of
+    inter-cloudlets network connectivity \footnote{for disconnected/partitioned
+    cloudlets, data can be modified via local control/management plane, if
+    exists and not failed. Despite the adjacent \textit{aggregation edge
+    layer} \cite{b3} global view and/or quorum requirements}.
+  \item data can be synchronized eventually across cloudlets to/from
+    \footnote{bi-directional data replication is not a strict requirement
+    though. For some cases, it is acceptable to have state replicated only from
+    aggregation edge layer to cloudlet(s) under its control/management, like
+    virtual machine or hardware provisioning images data. Or otherwise, logs,
+    performance and metering statistics can flow from cloudlets to aggregation
+    edge layer} its adjacent aggregation edge layer, but not horizontally
+    \footnote{also implies there is no horizontal data replication across neighbor aggregation edge layers. This
+    corresponds to the acyclic graph (tree) topology}.
+  \item data replication conflicts can be resolved automatically or by hand,
+    and/or queued \footnote{depending on the numbers and allowed isolation
+    periods of cloudlets under control/management, the disc and memory
+    requirements for aggregation edge layers may vary drastically} for later
+    processing \footnote{COPS \cite{b1} supports a similar failure mode for a
+    datacenter: ``the system administrator has two options: allow the queues to
+    grow if the partition is likely to heal soon, or reconfigure COPS to no
+    longer use the failed datacenter'', except that the datacenter may be
+    either failed or operating isolated long-time, and that we can have
+    multiple such datacenters}.
 \end{itemize}
 
 \subsection{Operational Invariants}
 
-Always available control and management planes require the following
-operational capabilities:
+To be always available, control and management planes of cloudlets should
+provide the following operational capabilities (\textit{invariants} hereafter):
 
 \begin{itemize}
 \item Foo
@@ -122,40 +151,17 @@ operational capabilities:
 
 \subsection{Data Consistency Requirements}
 
-Foo \cite{b2}.
+The operational invariants dictate inevitable presense of shared state
+\footnote{when we refer to just \textit{data} or \textit{state}, we do not
+differentiate either that is deployment or control data} among cloudlets. We
+know \cite{b4} that \textit{causally consistent} \cite{b1}\cite{b2}
+data accessing mechanisms is the best fit for the declared invariants of the
+always available control and management planes.
+
+In OpenStack, there is yet such data storages supported as a data
+backend. is normally stored in databases, which known as
 
 \section{Conclusion}
-
-\subsection{Figures and Tables}
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and
-bottom of columns. Avoid placing them in the middle of columns. Large
-figures and tables may span across both columns. Figure captions should be
-below the figures; table heads should appear above the tables. Insert
-figures and tables after they are cited in the text. Use the abbreviation
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
-
-\begin{table}[htbp]
-\caption{Table Type Styles}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
-\cline{2-4}
-\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
-\hline
-copy& More table copy$^{\mathrm{a}}$& &  \\
-\hline
-\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
-\end{tabular}
-\label{tab1}
-\end{center}
-\end{table}
-
-\begin{figure}[htbp]
-\centerline{\includegraphics[scale=0.5]{fig1.png}}
-\caption{Example of a figure caption.}
-\label{fig}
-\end{figure}
 
 \begin{thebibliography}{00}
 \bibitem{b1} W. Lloyd, M. J. Freedman, M. Kaminsky, and D. G. Andersen, ``Don’t settle for eventual: Scalable causal consistency for wide-area storage with COPS,'' Proc. 23rd ACM Symposium on Operating Systems Principles (SOSP 11), Cascais, Portugal, October 2011.
