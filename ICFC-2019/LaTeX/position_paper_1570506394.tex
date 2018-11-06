@@ -38,7 +38,7 @@ require resolving data collisions at the remote sites as well. In this paper,
 we position the outstanding data synchronization problems for OpenStack
 platform becoming a cloud solution number one for fog computing. We define the
 inter-cloud operational invariants based on that Always Available autonomy
-requirement. We show that a causally consistent key value storage is the best
+requirement. We show that a causally consistent data storage is the best
 match for the outlined operational invariants and there is a great opportunity
 for designing such a solution for Edge clouds. Finally, the paper brings the
 vision of unified tooling to solve the data synchronization problems the same
@@ -105,7 +105,7 @@ tenants or operators.
 
 Corresponds to administrative actions performed via configuration and lifecycle
 management systems. Such operations are typically targeted for cloudlets, like
-edge nodes, \textit{edge data centers}\cite{b3}, or edge clouds. E.g.,
+edge nodes, \textit{edge data centers}\cite{b3}, or edge clouds. E.g.
 upgrading or reconfiguring cloudlets in a \textit{virtual data center}
 \cite{b3}, or scaling up edge nodes. And typically initiated by cloud
 infrastructure owners. For some cases, like Baremetal-as-a-Service, tenants
@@ -117,8 +117,17 @@ data.
 \subsection{Always Available}
 
 The operational mode of the control and management planes that corresponds to
-the best known for today \textit{sticky available}\cite{b4} consistency models,
-e.g. \textit{Real-Time Causal}\cite{b2}, or \textit{causal+}\cite{b1}.
+the \textit{sticky available}\cite{b4} causal consistency models,
+i.e. \textit{Real-Time Causal}\cite{b2}, or \textit{causal+}\cite{b1}.
+
+The stickiness property imposes an additional constraint\cite{b4}: ``on every
+non-faulty node, so long as clients only talk to the same servers, instead of
+switching to new ones''. And the real-time constraint is keeping the system
+time synchronized for all cloudlets. Causal+ and Real-Time causal consistency
+ensures ordering of relative operations, i.e. all causally related writes can
+be seen in the same order by all processes (connected to the same server). All
+that provides the best causal consistency guarantees\footnote{for
+\textit{one-way convergent}\cite{b2} systems} we can get for today.
 
 \section{Analysis and Discussion}
 
@@ -143,7 +152,7 @@ requirements:
     replicated only from aggregation edge layer to cloudlet(s) under its
     control/management, like virtual machine or hardware provisioning images
     data. Or otherwise, logs, performance and metering statistics can flow from
-    cloudlets to aggregation edge layer} its adjacent aggregation edge layer,
+    cloudlets to aggregation edge layer. Real-Time Causal } its adjacent aggregation edge layer,
     but not horizontally\footnote{also implies there is no horizontal data
     replication across neighbor aggregation edge layers. This corresponds to
     the acyclic graph (tree) topology}.
@@ -161,8 +170,9 @@ requirements:
 
 \subsection{Operational Invariants}
 
-To be always available, control and management planes of cloudlets should
-provide the following operational capabilities (\textit{invariants} hereafter):
+To be always available as we defined it, control and management planes of
+cloudlets should provide the following operational capabilities
+(\textit{invariants} hereafter):
 
 \begin{itemize}
   \item TBD (see ./ICFC-2019/challenges.md)
@@ -178,36 +188,81 @@ deployment or control data} among cloudlets. We know\cite{b4} that
 the best fit for the declared invariants of the always available control and
 management planes.
 
-OpenStack and OpenShift/Kubernetes, have yet causally consistent data backends
-supported for storing the control/management plane state\footnote{the vision
-of the unified architecture based on such an always available data storage
-dictates us to not consider different backends for storing the control and
-managemenent planes state. Although generic version control systems, like Git,
-might fit all the cases for the deployment data versioning, replicating and
-manual conflicts resolving, that would break the unified design approach for
-cloud data processing}.
+OpenStack and OpenShift/Kubernetes, have yet causally consistent data
+backends\footnote{that is, for control/deployment data only} supported. The
+vision of the unified architecture based on such an always available data
+storage dictates us to not consider different backends for control and
+deployment data. Although generic version control systems, like Git, might fit
+all for the deployment data versioning, replicating and manual conflicts
+resolving, that would break the unified design approach for cloud data
+processing.
 
 OpenStack cloud data is normally stored in databases via transactions based on
-\textit{unavailable}\cite{b4} data consistency models, e.g.
+stronger than causal \textit{unavailable}\cite{b4} data consistency models, e.g.
 \textit{serializable}\cite{b4}, or \textit{repeatable read}\cite{b4}.
 
 The weaker than causal+ and Real-Time Causal \textit{total available}\cite{b4}
-consistency models may be considered as alternative. Transactional global
+consistency models may be considered as an alternative. Transactional global
 databases\cite{b5}, may technically support it\footnote{not Galera/MariaDB
 cluster though, as it has a strict quorum requierements for database writes}. A
 weaker consistency model provides a really poor alternative though as it brings
 increased implementaion complexity, like corner cases handling for either the
 storage replicas, or client sided, or both, associated with relaxed
-constraints. F.e. \textit{monotonic atomic view}\cite{b4} does not impose any
+constraints. E.g. \textit{monotonic atomic view}\cite{b4} does not impose any
 real-time constraints, while Real-Time Causal does, which somewhat simplifies
 the end system design. Additionally, monotonic atomic view would require
 sophisticated handling of \textit{fuzzy reads}\cite{b4},
 \textit{phantoms}\cite{b4}, discarded write-only transactions, empty state
-returned for any reads. All of that makes that the strongest option for totally
-available data backends much less preferable than causally (sticky) consistent
+returned for any reads. All that makes that the strongest option for totally
+available data backends less preferable than causally (sticky) consistent
 ones.
 
+Kubernetes clusters state is backed with Etcd, which only supports the stronger
+than Real-Time Causal consistency models.
+
+\subsection{Vision of a Unified Control/Cloud Data Storage Design}
+
+The definition we made for always available distributed systems self-explains
+why the causally (sticky) consistent storage backends is the best match for the
+cloudlets autonomy requirements and operational invariants as we defined those.
+
+COPS formally proves implementation of a client library and highly scalable
+tooling for causal+ data operations. By design, it does not impose any
+real-time constraints and supports a single Edge data center failure. The real
+tooling made off that base, may be operating on top of the nonshared local cloudlets
+databases, or key value storages (KVS), that provide the stronger consistency
+guarantees by the costs of reduced local availability\footnote{that is, the local view
+for a cloudlet and have no impact onto global views}. That would
+work as weaker consistency guarantees work well, when built on top of the
+stronger ones, and provide an always available global view of cloudlets for the
+adjacent aggregation edge layer that controls/manages these cloudlets as the
+next hop connection. Replicating the state changes via causally related operations
+and conflicts resolving via custom handlers is that COPS covers as well.
+
+The open questions are:
+\begin{itemize}
+  \item Does COPS retains operations causal+ related when executed over
+    multiple datacenters failure events (or extended time of being network
+    partitioned)? Given the operational invariants, an aggregation edge layer
+    cloudlet should allow all of its managed/controlled cloudlets running fully
+    autonomous long-time, having all the outgoing operations queued and either
+    eventually applied with conflicts resolved, or dropped/expired\footnote{the
+    global view of fully autonomous cloudlets may be represented for the
+    agregation edge layer with the state marks, like ``unknown/autonomous'',
+    ``synchronizing'', ``connected'', ``failed/disconnected/fenced'', if and
+    only if it is confirmed as failed, or manually disconnected, or fenced
+    automatically}.
+  \item Does COPS support two-way convergent systems, in terms of \cite{b2},
+    for bi-directional causal+ replications?
+\end{itemize}
+
+TODO: find a use for Real-Time Causal and \cite{b6} alternatives to form more
+options for vision. Finally, make preferences for causal databases vs KVS, if
+possible?
+
 \section{Conclusion}
+
+TBD
 
 \begin{thebibliography}{00}
 \bibitem{b1} W. Lloyd, M. J. Freedman, M. Kaminsky, and D. G. Andersen, ``Don’t settle for eventual: Scalable causal consistency for wide-area storage with COPS,'' Proc. 23rd ACM Symposium on Operating Systems Principles (SOSP 11), Cascais, Portugal, October 2011.
@@ -215,5 +270,6 @@ ones.
 \bibitem{b3} The Linux Foundation, ``Open Glossary of Edge Computing,'' [Online]. Available: \url{https://github.com/State-of-the-Edge/glossary}
 \bibitem{b4} K. Kingsbury, ``Consistency Models,'' [Online]. Available: \url{https://jepsen.io/consistency}
 \bibitem{b5} M. Bayer, ``Global Galera Database,'' [Online]. Available: \url{https://review.openstack.org/600555}
+\bibitem{b6} M. M. Elbushra, J. Lindstrom, ``Causal Consistent Databases'', Open Journal of Databases (OJDB), Volume 2, Issue 1, 2015.
 \end{thebibliography}
 \end{document}
