@@ -52,22 +52,43 @@ Open source software, Edge computing, Distributed computing, System
 availability, Design
 \end{IEEEkeywords}
 
+\section{Introduction}
+
+OpenStack is an Infrastructure-as-a-Service platform number one for private
+cloud computing, and it becomes being so for fog computing as well.
+Hybridization and Mutli-cloud trends for private clouds interconnected with
+public clouds and Platform-as-a-Service (PaaS) solutions, like
+OpenShift/Kubernetes, allow the containerization of micro-services oriented
+workloads to emerge in a highly portable, self-contained and the hosting
+cloud-agnostic way. Giving it massively distributed scale of fog computing and
+bringing the data it operates closer to end users, opens great opportunities
+for Internet of Things (IoT) and nextgen global telecommunication technologies,
+which first of all requires low-latency and higlhy responsive interfaces always
+available for end users.
+
+Speaking of always available, back to the system administration realities, the
+Edge clouds control and management plane capabilities in such a perfect world
+shall not fall behind as well. This paper is about to position the associated
+data replication challenges and to bring vision of future development trends on
+that topic, both for OpenStack and hopefully for anything residing on top of
+it, e.g. PaaS and/or workloads designed for massively distributed scale and
+following the IoT/fog computing best practices.
 
 \section{Glossary}
 
-Aside of the established terms \cite{b3}, we define a few more for the data
-processing and operational points of view:
+Aside of the established terms\cite{b3}, we define a few more for the data
+processing and operational aspects:
 
 \subsection{Deployment Data}
 
-Data that represents the configuration of \textit{cloudlets} \cite{b3}, like
-API endpoints URI, or numbers of deployed \textit{edge nodes} \cite{b3} in
-\textit{edge clouds} \cite{b3}. That data represents the most recent state of a
+Data that represents the configuration of \textit{cloudlets}\cite{b3}, like
+API endpoints URI, or numbers of deployed \textit{edge nodes}\cite{b3} in
+\textit{edge clouds}\cite{b3}. That data represents the most recent state of a
 deployment.
 
 \subsection{Cloud Data}
 
-Represents the most recent \footnote{when there is unresolved data merging
+Represents the most recent\footnote{when there is unresolved data merging
 conflicts, the most recent state becomes the best known state} internal and
 publicly visible state of cloudlets, like cloud users or virtual routers. Cloud
 data also includes logs, performance and usage statistics, state of message
@@ -84,10 +105,10 @@ tenants or operators.
 
 Corresponds to administrative actions performed via configuration and lifecycle
 management systems. Such operations are typically targeted for cloudlets, like
-edge nodes, \textit{edge data centers} \cite{b3}, or edge clouds. E.g.,
+edge nodes, \textit{edge data centers}\cite{b3}, or edge clouds. E.g.,
 upgrading or reconfiguring cloudlets in a \textit{virtual data center}
 \cite{b3}, or scaling up edge nodes. And typically initiated by cloud
-infrastructure owners.  For some cases, like Baremetal-as-a-Service, tenants
+infrastructure owners. For some cases, like Baremetal-as-a-Service, tenants
 may as well initiate actions executed via the management plane. Collecting
 logs, performance and usage statistics for monitoring and alerting systems also
 represents the management plane operations, although it operates with the cloud
@@ -96,11 +117,8 @@ data.
 \subsection{Always Available}
 
 The operational mode of the control and management planes that corresponds to
-the best for today choices for the \textit{sticky available}\cite{b4}
-consistency models, e.g. \textit{Real-Time Causal} \cite{b2}, or
-\textit{causal+} \cite{b1}.
-
-\section{Introduction}
+the best known for today \textit{sticky available}\cite{b4} consistency models,
+e.g. \textit{Real-Time Causal}\cite{b2}, or \textit{causal+}\cite{b1}.
 
 \section{Analysis and Discussion}
 
@@ -110,29 +128,30 @@ We define always available autonomy for cloudlets as the following strict
 requirements:
 
 \begin{itemize}
-  \item any operations performed on cloudlets state \footnote{despite the
+  \item any operations performed on cloudlets state\footnote{despite the
     cloudlets aliveness or failure conditions} fit data consistency models that
     allow the involved control/management planes operating as always available,
     and there is no read-only or blocking access limitations.
   \item cloudlets data can be modified at any given moment of time, despite of
-    inter-cloudlets network connectivity \footnote{for disconnected/partitioned
+    inter-cloudlets network connectivity\footnote{for disconnected/partitioned
     cloudlets, data can be modified via local control/management plane, if
     exists and not failed. Despite the adjacent \textit{aggregation edge
-    layer} \cite{b3} global view and/or quorum requirements}.
-  \item data can be synchronized eventually across cloudlets to/from
-    \footnote{bi-directional data replication is not a strict requirement
-    though. For some cases, it is acceptable to have state replicated only from
-    aggregation edge layer to cloudlet(s) under its control/management, like
-    virtual machine or hardware provisioning images data. Or otherwise, logs,
-    performance and metering statistics can flow from cloudlets to aggregation
-    edge layer} its adjacent aggregation edge layer, but not horizontally
-    \footnote{also implies there is no horizontal data replication across neighbor aggregation edge layers. This
-    corresponds to the acyclic graph (tree) topology}.
+    layer}\cite{b3} global view and/or quorum requirements}.
+  \item data can be synchronized eventually across cloudlets
+    to/from\footnote{bi-directional data replication is not a strict
+    requirement though. For some cases, it is acceptable to have state
+    replicated only from aggregation edge layer to cloudlet(s) under its
+    control/management, like virtual machine or hardware provisioning images
+    data. Or otherwise, logs, performance and metering statistics can flow from
+    cloudlets to aggregation edge layer} its adjacent aggregation edge layer,
+    but not horizontally\footnote{also implies there is no horizontal data
+    replication across neighbor aggregation edge layers. This corresponds to
+    the acyclic graph (tree) topology}.
   \item data replication conflicts can be resolved automatically or by hand,
-    and/or queued \footnote{depending on the numbers and allowed isolation
+    and/or queued\footnote{depending on the numbers and allowed isolation
     periods of cloudlets under control/management, the disc and memory
     requirements for aggregation edge layers may vary drastically} for later
-    processing \footnote{COPS \cite{b1} supports a similar failure mode for a
+    processing\footnote{COPS\cite{b1} supports a similar failure mode for a
     datacenter: ``the system administrator has two options: allow the queues to
     grow if the partition is likely to heal soon, or reconfigure COPS to no
     longer use the failed datacenter'', except that the datacenter may be
@@ -146,20 +165,47 @@ To be always available, control and management planes of cloudlets should
 provide the following operational capabilities (\textit{invariants} hereafter):
 
 \begin{itemize}
-\item Foo
+  \item TBD (see ./ICFC-2019/challenges.md)
 \end{itemize}
 
 \subsection{Data Consistency Requirements}
 
-The operational invariants dictate inevitable presense of shared state
-\footnote{when we refer to just \textit{data} or \textit{state}, we do not
-differentiate either that is deployment or control data} among cloudlets. We
-know \cite{b4} that \textit{causally consistent} \cite{b1}\cite{b2}
-data accessing mechanisms is the best fit for the declared invariants of the
-always available control and management planes.
+The operational invariants dictate inevitable presense of shared state and
+sophisticated data replication mechanisms\footnote{when we refer to just
+\textit{data} or \textit{state}, we do not differentiate either that is
+deployment or control data} among cloudlets. We know\cite{b4} that
+\textit{causally consistent}\cite{b1}\cite{b2} data accessing mechanisms is
+the best fit for the declared invariants of the always available control and
+management planes.
 
-In OpenStack, there is yet such data storages supported as a data
-backend. is normally stored in databases, which known as
+OpenStack and OpenShift/Kubernetes, have yet causally consistent data backends
+supported for storing the control/management plane state\footnote{the vision
+of the unified architecture based on such an always available data storage
+dictates us to not consider different backends for storing the control and
+managemenent planes state. Although generic version control systems, like Git,
+might fit all the cases for the deployment data versioning, replicating and
+manual conflicts resolving, that would break the unified design approach for
+cloud data processing}.
+
+OpenStack cloud data is normally stored in databases via transactions based on
+\textit{unavailable}\cite{b4} data consistency models, e.g.
+\textit{serializable}\cite{b4}, or \textit{repeatable read}\cite{b4}.
+
+The weaker than causal+ and Real-Time Causal \textit{total available}\cite{b4}
+consistency models may be considered as alternative. Transactional global
+databases\cite{b5}, may technically support it\footnote{not Galera/MariaDB
+cluster though, as it has a strict quorum requierements for database writes}. A
+weaker consistency model provides a really poor alternative though as it brings
+increased implementaion complexity, like corner cases handling for either the
+storage replicas, or client sided, or both, associated with relaxed
+constraints. F.e. \textit{monotonic atomic view}\cite{b4} does not impose any
+real-time constraints, while Real-Time Causal does, which somewhat simplifies
+the end system design. Additionally, monotonic atomic view would require
+sophisticated handling of \textit{fuzzy reads}\cite{b4},
+\textit{phantoms}\cite{b4}, discarded write-only transactions, empty state
+returned for any reads. All of that makes that the strongest option for totally
+available data backends much less preferable than causally (sticky) consistent
+ones.
 
 \section{Conclusion}
 
@@ -168,5 +214,6 @@ backend. is normally stored in databases, which known as
 \bibitem{b2} P. Mahajan, L. Alvisi, and M. Dahlin. ``Consistency, availability, and convergence,'' Technical Report TR-11-22, Univ. Texas at Austin, Dept. Comp. Sci., 2011.
 \bibitem{b3} The Linux Foundation, ``Open Glossary of Edge Computing,'' [Online]. Available: \url{https://github.com/State-of-the-Edge/glossary}
 \bibitem{b4} K. Kingsbury, ``Consistency Models,'' [Online]. Available: \url{https://jepsen.io/consistency}
+\bibitem{b5} M. Bayer, ``Global Galera Database,'' [Online]. Available: \url{https://review.openstack.org/600555}
 \end{thebibliography}
 \end{document}
