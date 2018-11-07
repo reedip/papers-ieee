@@ -79,55 +79,62 @@ following the IoT/fog computing best practices.
 Aside of the established terms\cite{b3}, we define a few more for the data
 processing and operational aspects:
 
-\subsection{Deployment Data}
+\textbf{Deployment Data}: data that represents the configuration of
+\textit{cloudlets}\cite{b3}, like API endpoints URI, or numbers of deployed
+\textit{edge nodes}\cite{b3} in \textit{edge clouds}\cite{b3}. That data
+represents the most recent state of a deployment.
 
-Data that represents the configuration of \textit{cloudlets}\cite{b3}, like
-API endpoints URI, or numbers of deployed \textit{edge nodes}\cite{b3} in
-\textit{edge clouds}\cite{b3}. That data represents the most recent state of a
-deployment.
+\textbf{Cloud Data}: represents the most recent\footnote{when there is
+unresolved data merging conflicts, the most recent state becomes the best known
+state} internal and publicly visible state of cloudlets, like cloud users or
+virtual routers. Cloud data also includes logs, performance and usage
+statistics, state of message queues and the contents of databases.
 
-\subsection{Cloud Data}
+\textbf{Control Plane}: corresponds to any operations performed via cloudlets
+API endpoints or command line tooling. For example, starting a virtual machine
+instance, or creating a cloud user. Such operations are typically initiated by
+cloud applications, tenants or operators. When we refer to an \textit{edge
+aggregation layer}\cite{b3} and cloudlets under its control, we mean exactly
+any operations executed via the control plane of that edge aggregation layer
+and targeted for cloudlets sitting as the next hop graph connection. If the
+next hop is represented by another edge aggregation layer, the same applies to
+its adjacent cloudlets. So effectively there is no next hop only limitations
+for control plane actions propagated over the nested levels of cloudlets.
 
-Represents the most recent\footnote{when there is unresolved data merging
-conflicts, the most recent state becomes the best known state} internal and
-publicly visible state of cloudlets, like cloud users or virtual routers. Cloud
-data also includes logs, performance and usage statistics, state of message
-queues and the contents of databases.
+\textbf{Management Plane}: corresponds to administrative actions performed via
+configuration and lifecycle management systems. Such operations are typically
+targeted for cloudlets, like edge nodes, \textit{edge data centers}\cite{b3},
+or edge clouds. E.g.  upgrading or reconfiguring cloudlets in a \textit{virtual
+data center} \cite{b3}, or scaling up edge nodes. And typically initiated by
+cloud infrastructure owners. For some cases, like Baremetal-as-a-Service,
+tenants may as well initiate actions executed via the management plane.
+Collecting logs, performance and usage statistics for monitoring and alerting
+systems also represents the management plane operations, although it operates
+with the cloud data. When we refer to an \textit{edge aggregation
+layer}\cite{b3} and cloudlets under its management, we mean exactly
+administrative/deployment related operations executed via the management plane.
+Similarly to the control plane, we impose no nesting limitations.
 
-\subsection{Control Plane}
+\textbf{Always Available}: the operational mode of the control and management
+planes that corresponds to \textit{sticky available causal
+consistency}\cite{b4} data replication models, i.e. RTC (\textit{Real-Time
+Causal}\cite{b2}), or \textit{causal+}\cite{b1}. Depending on the consistency
+model choices, there may be additional constraints:
 
-Corresponds to any operations performed via cloudlets API endpoints or command
-line tooling. For example, starting a virtual machine instance, or creating a
-cloud user. Such operations are typically initiated by cloud applications,
-tenants or operators.
+\begin{itemize}
+  \item the stickiness property is a mandatory constraint for sticky available
+    causally consistent systems. That is: ``on every non-faulty node, so long
+    as clients only talk to the same servers, instead of switching to new
+    ones''\cite{b4}.
+  \item the real-time constraint is keeping the system time synchronized for
+    all cloudlets. That is a mandatory constraint for RTC.
+  \item \textit{one-way convergence}\cite{b2} is a mandatory for RTC.
+\end{itemize}
 
-\subsection{Management Plane}
-
-Corresponds to administrative actions performed via configuration and lifecycle
-management systems. Such operations are typically targeted for cloudlets, like
-edge nodes, \textit{edge data centers}\cite{b3}, or edge clouds. E.g.
-upgrading or reconfiguring cloudlets in a \textit{virtual data center}
-\cite{b3}, or scaling up edge nodes. And typically initiated by cloud
-infrastructure owners. For some cases, like Baremetal-as-a-Service, tenants
-may as well initiate actions executed via the management plane. Collecting
-logs, performance and usage statistics for monitoring and alerting systems also
-represents the management plane operations, although it operates with the cloud
-data.
-
-\subsection{Always Available}
-
-The operational mode of the control and management planes that corresponds to
-the \textit{sticky available}\cite{b4} causal consistency models,
-i.e. \textit{Real-Time Causal}\cite{b2}, or \textit{causal+}\cite{b1}.
-
-The stickiness property imposes an additional constraint\cite{b4}: ``on every
-non-faulty node, so long as clients only talk to the same servers, instead of
-switching to new ones''. And the real-time constraint is keeping the system
-time synchronized for all cloudlets. Causal+ and Real-Time causal consistency
-ensures ordering of relative operations, i.e. all causally related writes can
-be seen in the same order by all processes (connected to the same server). All
-that provides the best causal consistency guarantees\footnote{for
-\textit{one-way convergent}\cite{b2} systems} we can get for today.
+Causal+ and RTC consistency ensures ordering of relative operations, i.e.
+all causally related writes can be seen in the same order by all processes
+(connected to the same server). All that provides the best causal consistency
+guarantees we can get for today for always available systemts.
 
 \section{Analysis and Discussion}
 
@@ -140,32 +147,21 @@ requirements:
   \item any operations performed on cloudlets state\footnote{despite the
     cloudlets aliveness or failure conditions} fit data consistency models that
     allow the involved control/management planes operating as always available,
-    and there is no read-only or blocking access limitations.
+    and there is no limitations, like read-only or blocking access.
   \item cloudlets data can be modified at any given moment of time, despite of
     inter-cloudlets network connectivity\footnote{for disconnected/partitioned
     cloudlets, data can be modified via local control/management plane, if
-    exists and not failed. Despite the adjacent \textit{aggregation edge
-    layer}\cite{b3} global view and/or quorum requirements}.
-  \item data can be synchronized eventually across cloudlets
-    to/from\footnote{bi-directional data replication is not a strict
-    requirement though. For some cases, it is acceptable to have state
-    replicated only from aggregation edge layer to cloudlet(s) under its
-    control/management, like virtual machine or hardware provisioning images
-    data. Or otherwise, logs, performance and metering statistics can flow from
-    cloudlets to aggregation edge layer. Real-Time Causal } its adjacent aggregation edge layer,
-    but not horizontally\footnote{also implies there is no horizontal data
-    replication across neighbor aggregation edge layers. This corresponds to
-    the acyclic graph (tree) topology}.
-  \item data replication conflicts can be resolved automatically or by hand,
-    and/or queued\footnote{depending on the numbers and allowed isolation
-    periods of cloudlets under control/management, the disc and memory
-    requirements for aggregation edge layers may vary drastically} for later
-    processing\footnote{COPS\cite{b1} supports a similar failure mode for a
-    datacenter: ``the system administrator has two options: allow the queues to
-    grow if the partition is likely to heal soon, or reconfigure COPS to no
-    longer use the failed datacenter'', except that the datacenter may be
-    either failed or operating isolated long-time, and that we can have
-    multiple such datacenters}.
+    exists and not failed. Despite the adjacent aggregation edge
+    layer global view and/or quorum requirements}.
+  \item aggregation edge layer cloudlets allows all of its managed/controlled
+    cloudlets running fully autonomous long-time, having all the outgoing
+    operations queued and either eventually applied with conflicts resolved, or
+    dropped/expired.
+  \item the global view of fully autonomous cloudlets needs to be represented
+    for the agregation edge layer. For example, with the state marks, like
+    ``unknown/autonomous'', ``synchronizing'', ``connected'',
+    ``failed/disconnected/fenced'', if and only if it is confirmed as failed,
+    or manually disconnected, or fenced automatically.
 \end{itemize}
 
 \subsection{Operational Invariants}
@@ -178,30 +174,44 @@ cloudlets should provide the following operational capabilities
   \item TBD (see ./ICFC-2019/challenges.md)
 \end{itemize}
 
-\subsection{Data Consistency Requirements}
+\subsection{Data Replication Consistency Requirements}
 
 The operational invariants dictate inevitable presense of shared state and
 sophisticated data replication mechanisms\footnote{when we refer to just
 \textit{data} or \textit{state}, we do not differentiate either that is
-deployment or control data} among cloudlets. We know\cite{b4} that
-\textit{causally consistent}\cite{b1}\cite{b2} data accessing mechanisms is
-the best fit for the declared invariants of the always available control and
-management planes.
+deployment or cloud data, which poses the unified approach principle} among
+cloudlets.
+
+As it follows from the defined always available autonomy requirements and
+operational invariants, we define the following data replication requirements:
+
+\begin{itemize}
+  \item data can be replicated eventually across cloudlets and the adjacent
+    aggregation edge layer, but not horizontally\footnote{also implies there is
+    no horizontal data replication across neighbor aggregation edge layers.
+    This corresponds to the acyclic graph (tree) topology. Also, only one-way
+    data replication may be possible in case of an RTC consistent data
+    storage}.
+  \item bidirectional (two-way convergence) data replication is not a strict
+    requirement but is nice to have. Indeed, some state needs to be replicated
+    one-way from aggregation edge layer to cloudlets under its
+    control/management, like virtual machine or hardware provisioning images
+    data. While logs, performance and metering statistics may be collected only
+    from cloudlets to the adjacent aggregation edge layer.
+  \item data replication conflicts can be resolved automatically or by hand,
+    and/or queued\footnote{depending on the numbers and allowed isolation
+    periods of cloudlets under control/management, the disc and memory
+    requirements for aggregation edge layers may vary drastically} for later
+    processing.
+\end{itemize}
 
 OpenStack and OpenShift/Kubernetes, have yet causally consistent data
-backends\footnote{that is, for control/deployment data only} supported. The
-vision of the unified architecture based on such an always available data
-storage dictates us to not consider different backends for control and
-deployment data. Although generic version control systems, like Git, might fit
-all for the deployment data versioning, replicating and manual conflicts
-resolving, that would break the unified design approach for cloud data
-processing.
-
+backends\footnote{that is, for cloud/deployment data only} supported.
 OpenStack cloud data is normally stored in databases via transactions based on
-stronger than causal \textit{unavailable}\cite{b4} data consistency models, e.g.
-\textit{serializable}\cite{b4}, or \textit{repeatable read}\cite{b4}.
+stronger than causal \textit{unavailable}\cite{b4} data consistency models,
+e.g.  \textit{serializable}\cite{b4}, or \textit{repeatable read}\cite{b4}.
 
-The weaker than causal+ and Real-Time Causal \textit{total available}\cite{b4}
+The weaker than causal+ and RTC \textit{total available}\cite{b4}
 consistency models may be considered as an alternative. Transactional global
 databases\cite{b5}, may technically support it\footnote{not Galera/MariaDB
 cluster though, as it has a strict quorum requierements for database writes}. A
@@ -209,56 +219,102 @@ weaker consistency model provides a really poor alternative though as it brings
 increased implementaion complexity, like corner cases handling for either the
 storage replicas, or client sided, or both, associated with relaxed
 constraints. E.g. \textit{monotonic atomic view}\cite{b4} does not impose any
-real-time constraints, while Real-Time Causal does, which somewhat simplifies
+real-time constraints, while RTC does, which somewhat simplifies
 the end system design. Additionally, monotonic atomic view would require
 sophisticated handling of \textit{fuzzy reads}\cite{b4},
 \textit{phantoms}\cite{b4}, discarded write-only transactions, empty state
 returned for any reads. All that makes that the strongest option for totally
-available data backends less preferable than causally (sticky) consistent
-ones.
+available data backends less preferable than causally consistent ones.
 
 Kubernetes clusters state is backed with Etcd, which only supports the stronger
-than Real-Time Causal consistency models.
+than RTC consistency models.
 
-\subsection{Vision of a Unified Control/Cloud Data Storage Design}
+\subsection{Vision of a Unified Deployment/Cloud Data Storage Design}
 
 The definition we made for always available distributed systems self-explains
-why the causally (sticky) consistent storage backends is the best match for the
+why the causally consistent storage backends is the best match for the
 cloudlets autonomy requirements and operational invariants as we defined those.
+
+The vision of the unified architecture based on such an always available data
+storage dictates us to not consider different backends for cloud and deployment
+data. Although generic version control systems, like Git, might fit all cases
+for deployment data versioning, replicating and conflicts resolving, that would
+break the unified design approach for cloud data replication.
+
+Client libraries implementing causally consistent data replication and
+customizable conflicts resolving rules may provide a unification layer for
+different underlying databases/KVS (Key Value Storage). The replication will be
+effectively acting as database/KVS-to-database/KVS data synchronization
+tooling. The main benefit for such an approach is no a global data storage
+needed. Instead, the underlying local to cloudlets data storages may keep
+operating as is, share nothing and provide unavailable consistency models
+stronger than causal consistency. And cloudlets may keep using different
+solutions for its local data storages as far as the tooling supports such
+backends.
+
+Additionally, client libraries may replicate not only data but operations as
+well, i.e. resolve conflicting operations on-fly or picking from a queue, then
+apply the resulting causally related operations for its original targets,
+effectively acting as API-to-API retranslators. Any operations queued by
+control/management planes, including those targeted for disconnected/autonomous
+cloudlets, may be also processed that way.
 
 COPS formally proves implementation of a client library and highly scalable
 tooling for causal+ data operations. By design, it does not impose any
-real-time constraints and supports a single Edge data center failure. The real
-tooling made off that base, may be operating on top of the nonshared local cloudlets
-databases, or key value storages (KVS), that provide the stronger consistency
-guarantees by the costs of reduced local availability\footnote{that is, the local view
-for a cloudlet and have no impact onto global views}. That would
-work as weaker consistency guarantees work well, when built on top of the
-stronger ones, and provide an always available global view of cloudlets for the
-adjacent aggregation edge layer that controls/manages these cloudlets as the
-next hop connection. Replicating the state changes via causally related operations
-and conflicts resolving via custom handlers is that COPS covers as well.
+real-time constraints and supports a single edge data center failure. The real
+tooling made off that base, may be operating on top of the nonshared local
+cloudlets databases, or KVS, that provide the stronger consistency guarantees
+by the costs of reduced local availability\footnote{that is, the local view for
+a cloudlet and have no impact onto global views}. That would work as weaker
+consistency guarantees work well, when built on top of the stronger ones, and
+provide an always available global view of cloudlets for the adjacent
+aggregation edge layer. Replicating the state changes via causally related
+operations and conflicts resolving via custom handlers is that COPS covers as
+well.
 
-The open questions are:
+Global causally consistent databases\cite{b6} is an alternative approach to
+client libraries operating on top of cloudlets databases/KVS/API.  The downside
+is such a database has to be supported as a control/management planes data
+backend for OpenStack/OpenShift/Kubernetes and/or any stateful cloud
+applications leveraging such a global database as a Replication-as-a-Service
+solution. And local cloudlets databases/KVS have to be switched to that global
+database.
+
+\textbf{Open questions}:
 \begin{itemize}
   \item Does COPS retains operations causal+ related when executed over
     multiple datacenters failure events (or extended time of being network
-    partitioned)? Given the operational invariants, an aggregation edge layer
-    cloudlet should allow all of its managed/controlled cloudlets running fully
-    autonomous long-time, having all the outgoing operations queued and either
-    eventually applied with conflicts resolved, or dropped/expired\footnote{the
-    global view of fully autonomous cloudlets may be represented for the
-    agregation edge layer with the state marks, like ``unknown/autonomous'',
-    ``synchronizing'', ``connected'', ``failed/disconnected/fenced'', if and
-    only if it is confirmed as failed, or manually disconnected, or fenced
-    automatically}.
-  \item Does COPS support two-way convergent systems, in terms of \cite{b2},
-    for bi-directional causal+ replications?
+    partitioned?)
+  \item Is COPS applicable for two-way convergent systems, in terms of
+    \cite{b2}, for bidirectional causal+ replications? Given that \cite{b1}
+    proves RTC provides the strongest causal consistency for one-way
+    convergence only, and given that it provides stronger consistency than
+    causal+, we can conclude that causal+ cannot provide the strongest causal
+    consistency for bidirectional communication neither.
+  \item How much of all of the cloudlets data replication cases can be
+    performed one-way? That would drastically simplify future implementation:
+    ``Although most implementations use bidirectional communication, the
+    communication from the update-receiver to the updatesender is just a
+    (significant) performance optimization used to avoid redundant transfers of
+    updates already known to the receiver. One-way convergence is also
+    important in protocols that transmit updates via delay tolerant
+    networks''\cite{b2}.
+  \item What solutions can we propose for operations that still do require a
+    bidirectional data synchronization, like unique cloud users ID, without
+    breaking the always availability autonomy requirements for the control
+    and management planes? Global causally consistent databases may be
+    a good choice for that. Alternatively, instead of bidirectionally
+    replicating such data, inter-cloudlets API-to-API based synchronization
+    mechanisms may become a solution.
 \end{itemize}
 
-TODO: find a use for Real-Time Causal and \cite{b6} alternatives to form more
+TODO: find a use for RTC and \cite{b6} alternatives to form more
 options for vision. Finally, make preferences for causal databases vs KVS, if
 possible?
+
+\section{Related work}
+
+TBD maybe?
 
 \section{Conclusion}
 
