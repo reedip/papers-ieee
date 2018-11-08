@@ -46,7 +46,7 @@ designing such a solution for Edge clouds. Finally, the paper brings vision
 of unified tooling to solve outstanding state synchronization problems the
 same way for infrastructure owners, cloud operators and tenants running
 stateful workloads hosted on OpenStack IaaS or OpenShift/Kubernetes PaaS
-deployed in Edge clouds as multi-cloud worlkoads abstraction and unification
+deployed in Edge clouds as multi-cloud workloads abstraction and unification
 layer, to make it truly cloud-vendors agnostic and portable.
 \end{abstract}
 
@@ -65,8 +65,8 @@ OpenShift/Kubernetes, allow the containerization of micro-services oriented
 workloads to emerge in a highly portable, self-contained and the hosting
 cloud-agnostic way. Giving it massively distributed scale of fog computing and
 bringing the data it operates closer to end users, opens great opportunities
-for Internet of Things (IoT) and nextgen global telecommunication technologies,
-which first of all requires low-latency and higlhy responsive interfaces always
+for Internet of Things (IoT) and next-gen global telecommunication technologies,
+which first of all requires low-latency and highly responsive interfaces always
 available for end users.
 
 Speaking of always available, back to the system administration realities, the
@@ -162,7 +162,7 @@ $\mathrm{EAL4}$ and $\mathrm{EAL2}$, which is totally the replication
 implementation specific. We can also see that $\mathrm{EAL4}$ is
 hierarchically associated with $\mathrm{EAL2}$ and $\mathrm{EAL1}$, which is
 under control and/or management of either of two. But it is not associated with
-$\mathrm{EAL3}$, $\mathrm{cloudlet2}$ or anyting sitting down of two.
+$\mathrm{EAL3}$, $\mathrm{cloudlet2}$ or anything sitting down of two.
 
 \textbf{Management Plane}: corresponds to administrative actions performed via
 configuration and lifecycle management systems. Such operations are typically
@@ -178,9 +178,9 @@ layer}\cite{b3} and cloudlets under its management, we mean exactly
 administrative/deployment related operations executed via the management plane.
 Similarly to the control plane, we impose the same data replication topology
 without nesting limitations but restricted only for horizontal graph
-connectiongs.
+connections.
 
-\textbf{Data Repliciation Conflict}: according to\cite{b1}, two operations on
+\textbf{Data Replication Conflict}: according to\cite{b1}, two operations on
 the same target are in conflict if they are not related by causality.
 
 \textbf{Always Available}: the operational mode of the control and management
@@ -206,7 +206,7 @@ supports non-blocking operations; i.e. processes may complete read or write
 operations without waiting for global computation. Therefore, the causal
 consistency overcomes the primary limit of stronger criteria: communication
 latency''\cite{b6}. All that provides the best causal consistency guarantees we
-can get for today for always available systemts.
+can get for today for always available systems.
 
 \section{Analysis and Discussion}
 
@@ -234,7 +234,7 @@ requirements:
     aggregation edge layers down the way to the target of the queued operations,
     the queue may be shared across each of the involved aggregation edge
     layers\footnote{or optionally, the queued operations may be distributed
-    across nonshared queues}. That should reduce the associated memory and disc
+    across not shared queues}. That should reduce the associated memory and disc
     requirements for aggregation layers.
   \item the global view of cloudlets needs to be periodically presented for at
     least one of the hierarchically associated aggregation edge layers. For
@@ -254,7 +254,7 @@ cloudlets should provide the following operational capabilities
 \begin{itemize}
   \item CRUD (Create, Read, Update and Delete) operations on cloud data can
     always be requested via API/CLI of local cloudlets or associated aggregation
-    layers sitting on top of the replication hierarchy. The same queueing
+    layers sitting on top of the replication hierarchy. The same queuing
     requirements apply as it is defined for the autonomy requirements.
   \item local CRUD operations for disconnected/autonomous cloudlets, if its
     control plane exists\footnote{a cloudlet may be running only
@@ -266,11 +266,11 @@ cloudlets should provide the following operational capabilities
     nodes can always be scheduled for scaling up/down by the cloudlets local
     management planes, if it is possible\footnote{a cloudlet may be relying on
     the remote configuration management only}, or via its hierarchically
-    associated aggregateion layers. Same queueing requirements apply.
+    associated aggregation layers. Same queuing requirements apply.
   \item security patches and minor system updates, including kernel upgrades,
     can always be scheduled for installation by the same meanings (via
     operations issued locally or by the associated aggregation layers,
-    including the same queueing requirements).
+    including the same queuing requirements).
   \item similarly, major versions of system components, like OpenStack or
     OpenShift/Kubernetes platforms, can be always scheduled for upgrades, using
     the same meanings as above.
@@ -285,15 +285,15 @@ cloudlets should provide the following operational capabilities
 
 \subsection{State Replication Consistency Requirements}
 
-The operational invariants dictate inevitable presense of shared state and
+The operational invariants dictate inevitable presence of shared state and
 sophisticated state replication and conflicts resolving
 mechanisms for cloudlets.
 
-When we refer to just \textit{data} or \textit{state}, we intentialy do not
+When we refer to just \textit{data} or \textit{state}, we intentionally do not
 differentiate either that is deployment or cloud data, or queued API/CLI
 operations, to be replicated for either of the management and control planes.
 While the final results of such causal consistent replication may end up in
-different nonshared storage backends proposing stronger data consistency
+different not shared storage backends proposing stronger data consistency
 models, or in a global database, the replication tooling must provide causal
 consistency and ideally should operate as an abstraction layer. That poses the
 \textbf{unified approach principle}, which allows such tooling to solve state
@@ -306,10 +306,10 @@ operational invariants, we define the following data replication requirements:
 \begin{itemize}
   \item data replication conflicts can be resolved automatically, or by hand.
     The conflicts resolving strategies and rules should be customizable, like
-    ``last writer wins'' or ``return them all''. After the conflics resolved,
+    ``last writer wins'' or ``return them all''. After the conflicts resolved,
     the data may be considered causal related, that is by definition\cite{b1}
     of the data conflicts in eventually consistent systems.
-  \item as far as the replication topology and queueing capabilities allow
+  \item as far as the replication topology and queuing capabilities allow
     that, causal related data can be replicated across cloudlets.
   \item bidirectional (two-way convergence) data replication is not a strict
     requirement but is nice to have. Indeed, some state needs to be replicated
@@ -334,9 +334,9 @@ read}\cite{b4}.
 The weaker than causal+ and RTC \textit{total available}\cite{b4}
 consistency models may be considered as an alternative. Transactional global
 databases\cite{b5}, may technically support it\footnote{not Galera/MariaDB
-cluster though, as it has a strict quorum requierements for database writes}. A
+cluster though, as it has a strict quorum requirements for database writes}. A
 weaker consistency model provides a really poor alternative though as it brings
-increased implementaion complexity, like corner cases handling for either the
+increased implementation complexity, like corner cases handling for either the
 storage replicas, or client sided, or both, associated with relaxed
 constraints. E.g. \textit{monotonic atomic view}\cite{b4} does not impose any
 real-time constraints, while RTC does, which somewhat simplifies
@@ -359,12 +359,12 @@ All that brings us to challenges that need to be addressed:
     data flows associated with such operations, and grouping those into
     particular replication schemes for a future implementation/integration of
     tooling. The groups of distinct replication schemes may be identified by
-    multiple dimenstions, like low/high communication latency, short/long time
+    multiple dimensions, like low/high communication latency, short/long time
     support for disconnected/autonomous cloudlets, one-way/two-way convergence
     based, global causal storage or client libraries implementation specific.
-    And for the latter subcase, either it should allow replicating data at a
+    And for the latter case, either it should allow replicating data at a
     database/KVS level or synchronizing in-flight/queued operations at API
-    level, or both. And for which data storage and message queueing backends to
+    level, or both. And for which data storage and message queuing backends to
     support such replication mechanisms\footnote{Given the current OpenStack
     and Kubernetes architecture, that should be at least clustered
     MySQL/MariaDB Galera databases, Etcd KVS, and RabbitMQ message queue}. In
@@ -379,10 +379,10 @@ All that brings us to challenges that need to be addressed:
     and upper constraints defined for inevitable operational overhead.
   \item building efficient state replication topologies matching the picked
     groups of replication schemes, depending on workloads types and numbers of
-    cloudlets managed/controled by edge aggregation layers. E.g. distributing
+    cloudlets managed/controlled by edge aggregation layers. E.g. distributing
     locally queued operations targeted for disconnected cloudlets by nesting
     more of the edge aggregation layers, might help to lower the hardware
-    requirements for all of the involved edge agreggation layers and allow
+    requirements for all of the involved edge aggregation layers and allow
     cloudlets to operate fully autonomous for extended time and/or over
     flaky/higher latency connections.
   \item strictly abiding the unified approach principle for Edge clouds architecture
@@ -404,7 +404,7 @@ invariants as we defined those.
 The vision of the unified architecture based on such an always available state
 replication also dictates us to not consider different solutions for cloud and
 deployment data or operations. Although generic version control systems, like
-Git, might fit all cases for deployment data versioning, replicating and
+Git, might fit all cases for deployment data replicating and
 conflicts resolving, that would break the unified design approach for cloud
 data/state replication.
 
@@ -425,15 +425,14 @@ API level replication, that is cells v1 protocol. But it had been deprecated as
 real cells v1 deployments required constant human care and feeding
 operationally} as well, i.e. resolve conflicting operations on-fly, then apply
 the resulting causal related operations for its original targets, effectively
-acting as API-to-API retranslators for cloudlets replicating to each other at
-an API level. Operations queued by the control/management planes, including
+replicating changes at an API level. Operations queued by the control/management planes, including
 those targeted for disconnected/autonomous cloudlets, may be also processed
 that way.
 
 COPS formally proves implementation of a client library and highly scalable
 tooling for causal+ data operations. By design, it does not impose any
 real-time constraints and supports a single edge data center failure. The real
-tooling made off that base, may be operating on top of the nonshared local
+tooling made off that base, may be operating on top of the not shared local
 cloudlets databases, or KVS, that provide the stronger consistency guarantees
 by the costs of reduced local availability\footnote{that is, the local view for
 a cloudlet and have no impact onto global views}. That would work as weaker
@@ -454,7 +453,7 @@ database.
 \textbf{Open questions}:
 \begin{itemize}
   \item Does COPS retains operations causal+ related when executed over
-    multiple datacenters failure events (or extended time of being network
+    multiple data centers failure events (or extended time of being network
     partitioned?)
   \item Is COPS applicable for two-way convergent systems, in terms of
     \cite{b2}, for bidirectional causal+ replications? Given that\cite{b1}
@@ -465,7 +464,7 @@ database.
   \item How much of all of the cloudlets data replication cases can be
     performed one-way? That would drastically simplify future implementation:
     ``Although most implementations use bidirectional communication, the
-    communication from the update-receiver to the updatesender is just a
+    communication from the update-receiver to the update-sender is just a
     (significant) performance optimization used to avoid redundant transfers of
     updates already known to the receiver. One-way convergence is also
     important in protocols that transmit updates via delay tolerant
@@ -497,11 +496,11 @@ Finally, we posed vision of key design principles, like queueing and lazy
 replication, aliveness of the control and management planes and a unified
 approach for the subject tooling. That is, state replication tooling to be
 based on either global causal consistent databases, or client libraries that
-replicate nonshared local data at databases/KVS level. Or client libraries that
+replicate not shared local data at databases/KVS level. Or client libraries that
 replicate operations at an API level.
 
 We want to position the unification principle as the most important thing and the
-greatest opporunity for developers to di it ``the right way'', which is to bring the best of
+greatest opportunity for developers to do it ``the right way'', which is to bring the best of
 two IaaS and PaaS worlds for end users whom such data replication tooling might
 benefit as-a-service, i.e. cloud tenants, infrastructure owners and operators.
 
