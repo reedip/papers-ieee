@@ -13,9 +13,9 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Edge Clouds Control Plane and Management Data Consistency
-Challenges: Position Paper for IEEE International Conference on Cloud
-Engineering, 2019\\ }
+\title{Position Paper: Edge Clouds Control Plane and Management Data
+Replication Challenges\\
+}
 
 \author{\IEEEauthorblockN{Bohdan Dobrelia}
 \IEEEauthorblockA{\textit{OpenStack platform} \\
@@ -27,25 +27,27 @@ bdobreli@redhat.com}
 \maketitle
 
 \begin{abstract}
-Fog computing is emerging Cloud of (Edge) Clouds technology. Its control plane
-and deployments data synchronization is a major challenge. Autonomy requirements
-expect even the most distant edge sites always manageable, available for
-monitoring and alerting, scaling up/down, upgrading and applying security fixes.
-Whenever temporary disconnected sites are managed locally or centrally, some
-changes and data need to be eventually synchronized back to the central site(s)
-with having its merge-conflicts resolved for the central data hub(s). While
-some data needs to be pushed from the central site(s) to the Edge, which might
-require resolving data collisions at the remote sites as well. In this paper,
-we position the outstanding data synchronization problems for OpenStack
-platform becoming a cloud solution number one for fog computing. We define the
-inter-cloud operational invariants based on that Always Available autonomy
-requirement. We show that a causally consistent data storage is the best
-match for the outlined operational invariants and there is a great opportunity
-for designing such a solution for Edge clouds. Finally, the paper brings the
-vision of unified tooling to solve the data synchronization problems the same
-way for infrastructure owners, IaaS cloud operators and tenants running
-workloads for PaaS, like OpenShift or Kubernetes deployed on top of Edge
-clouds.
+Fog computing is emerging Cloud of (Edge) Clouds technology. Its control
+plane and deployments data synchronization is a major challenge. Autonomy
+requirements expect even the most distant edge sites always manageable,
+available for monitoring and alerting, scaling up/down, upgrading and
+applying security fixes. Whenever temporary disconnected sites are managed
+locally or centrally, some changes and data need to be eventually
+synchronized back to the central site(s) with having its merge-conflicts
+resolved for the central data hub(s). While some data needs to be pushed from
+the central site(s) to the Edge, which might require resolving data
+collisions at the remote sites as well. In this paper, we position the
+outstanding data synchronization problems for OpenStack platform becoming a
+cloud solution number one for fog computing. We define the inter-cloud
+operational invariants based on that Always Available autonomy requirement.
+We show that a causal consistent data replication is the best match for the
+outlined operational invariants and there is a great opportunity for
+designing such a solution for Edge clouds. Finally, the paper brings vision
+of unified tooling to solve outstanding state synchronization problems the
+same way for infrastructure owners, cloud operators and tenants running
+stateful workloads hosted on OpenStack IaaS or OpenShift/Kubernetes PaaS
+deployed in Edge clouds as multi-cloud worlkoads abstraction and unification
+layer, to make it truly cloud-vendors agnostic and portable.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -57,7 +59,7 @@ availability, Design
 
 OpenStack is an Infrastructure-as-a-Service platform number one for private
 cloud computing, and it becomes being so for fog computing as well.
-Hybridization and Mutli-cloud trends for private clouds interconnected with
+Hybridization and multi-cloud trends for private clouds interconnected with
 public clouds and Platform-as-a-Service (PaaS) solutions, like
 OpenShift/Kubernetes, allow the containerization of micro-services oriented
 workloads to emerge in a highly portable, self-contained and the hosting
@@ -68,12 +70,16 @@ which first of all requires low-latency and higlhy responsive interfaces always
 available for end users.
 
 Speaking of always available, back to the system administration realities, the
-Edge clouds control and management plane capabilities in such a perfect world
-shall not fall behind as well. This paper is about to position the associated
-data replication challenges and to bring vision of future development trends on
-that topic, both for OpenStack and hopefully for anything residing on top of
-it, e.g. PaaS and/or workloads designed for massively distributed scale and
-following the IoT/fog computing best practices.
+Edge clouds control and management plane capabilities in such a massively
+distributed world shall not fall behind as well. This paper positions
+challenges associated with replicating state, like cloud or deployment data
+and/or operations, and defines minimum viable operational capabilities to have
+it always available as the best effort. It finally brings vision of unified
+systems design approach for future data replication tooling to be implemented
+for or integrated into OpenStack IaaS, OpenShift/Kubernetes PaaS that may
+optionally reside on top of it, or as a separate compute platform, and stateful
+workloads designed for massively distributed scale, which is natural for Edge
+computing and IoT.
 
 \section{Glossary}
 
@@ -82,14 +88,18 @@ processing and operational aspects:
 
 \textbf{Deployment Data}: data that represents the configuration of
 \textit{cloudlets}\cite{b3}, like API endpoints URI, or numbers of deployed
-\textit{edge nodes}\cite{b3} in \textit{edge clouds}\cite{b3}. That data
-represents the most recent state of a deployment.
+\textit{edge nodes}\cite{b3} in \textit{edge clouds}\cite{b3}. That data may
+represent either the most recent state\footnote{when there is unresolved data
+merging conflicts or queued operations pending for future execution, the most
+recent state becomes the best known state}of a deployment, or arbitrary data
+chunks/operations required to alter that state.
 
-\textbf{Cloud Data}: represents the most recent\footnote{when there is
-unresolved data merging conflicts, the most recent state becomes the best known
-state} internal and publicly visible state of cloudlets, like cloud users or
+\textbf{Cloud Data}: similarly to deployment data, represents the most recent
+or the best known internal and publicly visible state of cloudlets, like cloud users or
 virtual routers. Cloud data also includes logs, performance and usage
-statistics, state of message queues and the contents of databases.
+statistics, state of message queues and the contents of databases. It may as
+well represent either data chunks or operations targeted for some state
+$\mathrm{S}$ transitioning into a new state $\mathrm{S'}$.
 
 \textbf{Control Plane}: corresponds to any operations performed via cloudlets
 API endpoints or command line tooling. For example, starting a virtual machine
@@ -181,7 +191,7 @@ model choices, there may be additional constraints:
 
 \begin{itemize}
   \item the stickiness property is a mandatory constraint for sticky available
-    causally consistent systems. That is: ``on every non-faulty node, so long
+    causal consistent systems. That is: ``on every non-faulty node, so long
     as clients only talk to the same servers, instead of switching to new
     ones''\cite{b4}.
   \item the real-time constraint is keeping the system time synchronized for
@@ -190,7 +200,7 @@ model choices, there may be additional constraints:
 \end{itemize}
 
 Causal+ and RTC consistency ensures ordering of relative operations, i.e. all
-causally related writes can be seen in the same order by all processes
+causal related writes can be seen in the same order by all processes
 (connected to the same server). It is also known that ``the causal consistency
 supports non-blocking operations; i.e. processes may complete read or write
 operations without waiting for global computation. Therefore, the causal
@@ -207,7 +217,7 @@ requirements:
 
 \begin{itemize}
   \item any operations performed on cloudlets state\footnote{despite the
-    cloudlets aliveness or failure conditions} fit data consistency models that
+    cloudlets aliveness or failure conditions} fit consistency models that
     allow the involved control/management planes operating as always available,
     and there is no limitations, like read-only or blocking access.
   \item cloudlets data can be modified at any given moment of time, despite of
@@ -220,7 +230,7 @@ requirements:
     all the targeted outgoing operations queued.
   \item the queued operations have to be eventually applied if/after the
     control/management plane capabilities restored, or dropped/expired. That
-    poses the lazy data replication principle. If there is intermediate
+    poses the lazy replication principle. If there is intermediate
     aggregation edge layers down the way to the target of the queued operations,
     the queue may be shared across each of the involved aggregation edge
     layers\footnote{or optionally, the queued operations may be distributed
@@ -231,7 +241,7 @@ requirements:
     example, with the state marks, like ``unknown/autonomous'',
     ``synchronizing'', ``connected'', ``failed/disconnected/fenced'', if and
     only if it is confirmed as failed, or manually disconnected, or fenced
-    automatically. That poses the aliveness of control/management plane
+    automatically. That poses the aliveness of the control/management planes
     principle.
 \end{itemize}
 
@@ -273,13 +283,22 @@ cloudlets should provide the following operational capabilities
     performance and metering statistics.
 \end{itemize}
 
-\subsection{Data Replication Consistency Requirements}
+\subsection{State Replication Consistency Requirements}
 
 The operational invariants dictate inevitable presense of shared state and
-sophisticated data replication mechanisms\footnote{when we refer to just
-\textit{data} or \textit{state}, we do not differentiate either that is
-deployment or cloud data, which poses the unified approach principle} among
-cloudlets.
+sophisticated state replication and conflicts resolving
+mechanisms for cloudlets.
+
+When we refer to just \textit{data} or \textit{state}, we intentialy do not
+differentiate either that is deployment or cloud data, or queued API/CLI
+operations, to be replicated for either of the management and control planes.
+While the final results of such causal consistent replication may end up in
+different nonshared storage backends proposing stronger data consistency
+models, or in a global database, the replication tooling must provide causal
+consistency and ideally should operate as an abstraction layer. That poses the
+\textbf{unified approach principle}, which allows such tooling to solve state
+replication problems for IaaS, PaaS or end users consuming it as
+Replication-as-a-Service.
 
 As it follows from the defined always available autonomy requirements and
 operational invariants, we define the following data replication requirements:
@@ -288,10 +307,10 @@ operational invariants, we define the following data replication requirements:
   \item data replication conflicts can be resolved automatically, or by hand.
     The conflicts resolving strategies and rules should be customizable, like
     ``last writer wins'' or ``return them all''. After the conflics resolved,
-    the data may be considered causally related, that is by definition\cite{b1}
+    the data may be considered causal related, that is by definition\cite{b1}
     of the data conflicts in eventually consistent systems.
   \item as far as the replication topology and queueing capabilities allow
-    that, causally related data can be replicated across cloudlets.
+    that, causal related data can be replicated across cloudlets.
   \item bidirectional (two-way convergence) data replication is not a strict
     requirement but is nice to have. Indeed, some state needs to be replicated
     one-way from aggregation edge layer to cloudlets under its
@@ -301,11 +320,16 @@ operational invariants, we define the following data replication requirements:
     layers.
 \end{itemize}
 
-OpenStack and OpenShift/Kubernetes, have yet causally consistent data
-backends\footnote{that is, for cloud/deployment data only} supported.
-OpenStack cloud data is normally stored in databases via transactions based on
-stronger than causal \textit{unavailable}\cite{b4} data consistency models,
-e.g. \textit{serializable}\cite{b4}, or \textit{repeatable read}\cite{b4}.
+OpenStack and OpenShift/Kubernetes, have yet support for neither global causal
+consistent data backends\footnote{that is, exclusively for cloud/deployment
+data storage}, nor client libraries that could drive replication of casual
+related state. That poses an open opportunity for developers and system
+architects.
+
+OpenStack cloud data is normally stored in databases via
+transactions based on stronger than causal \textit{unavailable}\cite{b4} data
+consistency models, e.g.  \textit{serializable}\cite{b4}, or \textit{repeatable
+read}\cite{b4}.
 
 The weaker than causal+ and RTC \textit{total available}\cite{b4}
 consistency models may be considered as an alternative. Transactional global
@@ -320,25 +344,71 @@ the end system design. Additionally, monotonic atomic view would require
 sophisticated handling of \textit{fuzzy reads}\cite{b4},
 \textit{phantoms}\cite{b4}, discarded write-only transactions, empty state
 returned for any reads. All that makes that the strongest option for totally
-available data backends less preferable than causally consistent ones.
+available data backends less preferable than causal consistent ones.
 
-Kubernetes clusters state is backed with Etcd, which only supports the stronger
-than RTC consistency models.
+OpenShift/Kubernetes clusters state is backed with Etcd, which only supports
+the stronger than causal consistency models.
 
-\subsection{Vision of a Unified Deployment/Cloud Data Storage Design}
+\subsection{Data Replication Challenges}
+
+All that brings us to challenges that need to be addressed:
+\begin{itemize}
+  \item categorizing control/management planes operations\footnote{at very
+    least, limited to those that are the subject for state replication and
+    required to meet the defined operational invariants} and cloud/deployment
+    data flows associated with such operations, and grouping those into
+    particular replication schemes for a future implementation/integration of
+    tooling. The groups of distinct replication schemes may be identified by
+    multiple dimenstions, like low/high communication latency, short/long time
+    support for disconnected/autonomous cloudlets, one-way/two-way convergence
+    based, global causal storage or client libraries implementation specific.
+    And for the latter subcase, either it should allow replicating data at a
+    database/KVS level or synchronizing in-flight/queued operations at API
+    level, or both. And for which data storage and message queueing backends to
+    support such replication mechanisms\footnote{Given the current OpenStack
+    and Kubernetes architecture, that should be at least clustered
+    MySQL/MariaDB Galera databases, Etcd KVS, and RabbitMQ message queue}. In
+    the end, the final solution should not bring excessive operational
+    overhead, like if maintaining all of the identified replication schemes
+    simultaneously for a deployment, and require not too much of human care,
+    but still meet the unified approach principle as we defined it earlier.
+  \item designing strategies and rules for conflicts resolving based on picked
+    for a deployment groups of replication schemes identified the previous step.
+  \item picking/combining groups of replication schemes for a deployment wise.
+    The choices should be totally driven by replication topology expectations
+    and upper constraints defined for inevitable operational overhead.
+  \item building efficient state replication topologies matching the picked
+    groups of replication schemes, depending on workloads types and numbers of
+    cloudlets managed/controled by edge aggregation layers. E.g. distributing
+    locally queued operations targeted for disconnected cloudlets by nesting
+    more of the edge aggregation layers, might help to lower the hardware
+    requirements for all of the involved edge agreggation layers and allow
+    cloudlets to operate fully autonomous for extended time and/or over
+    flaky/higher latency connections.
+  \item strictly abiding the unified approach principle for Edge clouds architecture
+    and workloads designed for it. A future replication solution should be
+    targeted for control and management planes of OpenStack as a minimum viable
+    product (MVP). With having it potentially extended to OpenShift/Kubernetes
+    PaaS, and ideally, presented in cloud application catalogs as a
+    Replication-as-a-Service solution for hybrid and multi-cloud fog computing
+    workloads/applications.
+\end{itemize}
+
+\subsection{Vision of a Unified Deployment/Cloud State Replication Design}
 
 The definition we made for always available distributed systems self-explains
-why the causally consistent storage backends is the best match for the
+why the causal consistent state replication is the best match for the
 massively distributed cloudlets autonomy requirements and operational
 invariants as we defined those.
 
-The vision of the unified architecture based on such an always available data
-storage dictates us to not consider different backends for cloud and deployment
-data. Although generic version control systems, like Git, might fit all cases
-for deployment data versioning, replicating and conflicts resolving, that would
-break the unified design approach for cloud data replication.
+The vision of the unified architecture based on such an always available state
+replication also dictates us to not consider different solutions for cloud and
+deployment data or operations. Although generic version control systems, like
+Git, might fit all cases for deployment data versioning, replicating and
+conflicts resolving, that would break the unified design approach for cloud
+data/state replication.
 
-Client libraries implementing causally consistent data replication and
+Client libraries implementing causal consistent data replication and
 customizable conflicts resolving rules may provide a unification layer for
 different underlying databases/KVS (Key Value Storage). The replication will be
 effectively acting as database/KVS-to-database/KVS data synchronization tooling
@@ -354,7 +424,7 @@ API level\footnote{For OpenStack Nova, there had been an example for such an
 API level replication, that is cells v1 protocol. But it had been deprecated as
 real cells v1 deployments required constant human care and feeding
 operationally} as well, i.e. resolve conflicting operations on-fly, then apply
-the resulting causally related operations for its original targets, effectively
+the resulting causal related operations for its original targets, effectively
 acting as API-to-API retranslators for cloudlets replicating to each other at
 an API level. Operations queued by the control/management planes, including
 those targeted for disconnected/autonomous cloudlets, may be also processed
@@ -370,10 +440,10 @@ a cloudlet and have no impact onto global views}. That would work as weaker
 consistency guarantees work well, when built on top of the stronger ones, and
 provide an always available global view of cloudlets for hierarchically
 associated upper aggregation edge layers. Replicating the state changes via
-causally related operations and conflicts resolving via custom handlers is that
+causal related operations and conflicts resolving via custom handlers is that
 COPS covers as well.
 
-Global causally consistent databases\cite{b6} is an alternative approach to
+Global causal consistent databases\cite{b6} is an alternative approach to
 client libraries operating on top of cloudlets databases/KVS/API. The downside
 is such a database has to be supported as a control/management planes data
 backend for OpenStack/OpenShift/Kubernetes and/or any stateful cloud
@@ -403,14 +473,14 @@ database.
   \item What solutions can we propose for operations that still do require a
     bidirectional data synchronization, like unique cloud users ID, without
     breaking the always availability autonomy requirements for the control
-    and management planes? Global causally consistent databases may be
+    and management planes? Global causal consistent databases may be
     a good choice for that. Alternatively, instead of bidirectionally
     replicating such data, inter-cloudlets API-to-API based synchronization
     mechanisms may become a solution.
 \end{itemize}
 
 TODO: find a use for RTC and\cite{b6} alternatives to form more
-options for vision. Finally, make preferences for causal databases vs KVS, if
+options for the vision. Finally, make preferences for causal databases vs KVS, if
 possible?
 
 \section{Related work}
@@ -419,7 +489,21 @@ TBD maybe?
 
 \section{Conclusion}
 
-TBD
+We defined autonomy requirements for the control and management planes of
+massively distributed edge cloudlets and imposed minimum viable operational
+invariants off those autonomy requirements. That brought us to consistency
+requirements for cloudlets state replication and associated challenges.
+Finally, we posed vision of key design principles, like queueing and lazy
+replication, aliveness of the control and management planes and a unified
+approach for the subject tooling. That is, state replication tooling to be
+based on either global causal consistent databases, or client libraries that
+replicate nonshared local data at databases/KVS level. Or client libraries that
+replicate operations at an API level.
+
+We want to position the unification principle as the most important thing and the
+greatest opporunity for developers to di it ``the right way'', which is to bring the best of
+two IaaS and PaaS worlds for end users whom such data replication tooling might
+benefit as-a-service, i.e. cloud tenants, infrastructure owners and operators.
 
 \begin{thebibliography}{00}
 \bibitem{b1} W. Lloyd, M. J. Freedman, M. Kaminsky, and D. G. Andersen, ``Don’t settle for eventual: Scalable causal consistency for wide-area storage with COPS,'' Proc. 23rd ACM Symposium on Operating Systems Principles (SOSP 11), Cascais, Portugal, October 2011.
