@@ -336,20 +336,24 @@ break the unified design approach for cloud data replication.
 Client libraries implementing causally consistent data replication and
 customizable conflicts resolving rules may provide a unification layer for
 different underlying databases/KVS (Key Value Storage). The replication will be
-effectively acting as database/KVS-to-database/KVS data synchronization
-tooling. The main benefit for such an approach is no a global data storage
-needed. Instead, the underlying local to cloudlets data storages may keep
-operating as is, share nothing and provide unavailable consistency models
-stronger than causal consistency. And cloudlets may keep using different
-solutions for its local data storages as far as the tooling supports such
-backends.
+effectively acting as database/KVS-to-database/KVS data synchronization tooling
+syncing data at a database level. The main benefit for such an approach is no a
+global data storage needed. Instead, the underlying local to cloudlets data
+storages may keep operating as is, share nothing and provide unavailable
+consistency models stronger than causal consistency. And cloudlets may keep
+using different solutions for its local data storages as far as the tooling
+supports such backends.
 
-Additionally, client libraries may replicate not only data but operations as
-well, i.e. resolve conflicting operations on-fly or picking from a queue, then
-apply the resulting causally related operations for its original targets,
-effectively acting as API-to-API retranslators. Any operations queued by
-control/management planes, including those targeted for disconnected/autonomous
-cloudlets, may be also processed that way.
+Additionally, client libraries may replicate not only data but operations at an
+API level\footnote{For OpenStack Nova, there had been an example for such an
+API level replication, that is cells v1 protocol. But it had been deprecated as
+real cells v1 deployments required constant human care and feeding
+operationally} as well, i.e. resolve conflicting operations on-fly, then apply
+the resulting causally related operations for its original targets, effectively
+acting as API-to-API retranslators for cloudlets replicating to each other at
+an API level. Operations queued by the control/management planes, including
+those targeted for disconnected/autonomous cloudlets, may be also processed
+that way.
 
 COPS formally proves implementation of a client library and highly scalable
 tooling for causal+ data operations. By design, it does not impose any
