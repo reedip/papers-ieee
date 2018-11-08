@@ -149,7 +149,7 @@ of the graph, $\mathrm{cloudlet3}$ and $\mathrm{cloudlet4}$ cannot replicate to
 each other, but can do to the edge aggregation layer $\mathrm{EAL1}$ either
 directly or consequently via $\mathrm{EAL5}$, $\mathrm{cloudlet2}$,
 $\mathrm{EAL4}$ and $\mathrm{EAL2}$, which is totally the replication
-implementation specific.  We can also see that $\mathrm{EAL4}$ is
+implementation specific. We can also see that $\mathrm{EAL4}$ is
 hierarchically associated with $\mathrm{EAL2}$ and $\mathrm{EAL1}$, which is
 under control and/or management of either of two. But it is not associated with
 $\mathrm{EAL3}$, $\mathrm{cloudlet2}$ or anyting sitting down of two.
@@ -189,10 +189,14 @@ model choices, there may be additional constraints:
   \item \textit{one-way convergence}\cite{b2} is a mandatory for RTC.
 \end{itemize}
 
-Causal+ and RTC consistency ensures ordering of relative operations, i.e.
-all causally related writes can be seen in the same order by all processes
-(connected to the same server). All that provides the best causal consistency
-guarantees we can get for today for always available systemts.
+Causal+ and RTC consistency ensures ordering of relative operations, i.e. all
+causally related writes can be seen in the same order by all processes
+(connected to the same server). It is also known that ``the causal consistency
+supports non-blocking operations; i.e. processes may complete read or write
+operations without waiting for global computation. Therefore, the causal
+consistency overcomes the primary limit of stronger criteria: communication
+latency''\cite{b6}. All that provides the best causal consistency guarantees we
+can get for today for always available systemts.
 
 \section{Analysis and Discussion}
 
@@ -325,7 +329,8 @@ than RTC consistency models.
 
 The definition we made for always available distributed systems self-explains
 why the causally consistent storage backends is the best match for the
-cloudlets autonomy requirements and operational invariants as we defined those.
+massively distributed cloudlets autonomy requirements and operational
+invariants as we defined those.
 
 The vision of the unified architecture based on such an always available data
 storage dictates us to not consider different backends for cloud and deployment
