@@ -113,8 +113,8 @@ recent state becomes the best known state}of a deployment, or arbitrary data
 chunks/operations required to alter that state.
 
 \textbf{Cloud Data}: similarly to deployment data, represents the most recent
-or the best known internal and publicly visible state of cloudlets, like cloud users or
-virtual routers. Cloud data also includes logs, performance and usage
+or the best known internal and publicly visible state of cloudlets, like cloud
+users or virtual routers. Cloud data also includes logs, performance and usage
 statistics, state of message queues and the contents of databases. It may as
 well represent either data chunks or operations targeted for some state
 $\mathrm{S}$ transitioning into a new state $\mathrm{S'}$.
@@ -124,14 +124,9 @@ API endpoints or command line tooling. For example, starting a virtual machine
 instance or a Kubernetes pod, or creating an OpenStack Keystone user. Such
 operations are typically initiated by cloud applications, tenants or operators.
 
-\textbf{Replication Topology}: represents hierarchy for allowed data
-replication flows for interconnected cloudlets, including \textit{edge
-aggregation layers}\cite{b3}. When we refer to an edge aggregation layer and
-cloudlets under its control, we mean exactly any operations executed via the
-control plane of that edge aggregation layer and targeted for cloudlets sitting
-the next hop (which is adjacent up or down on the connections graph), or going
-deeper through the nested graph connections). If the next hop is represented by
-another edge aggregation layer, the same applies to its adjacent cloudlets.
+\textbf{Replication Topology}: represents a hierarchy for allowed state
+replication flows and targets for operations on interconnected cloudlets,
+including \textit{edge aggregation layers}\cite{b3}.
 
 \begin{figure}[htbp]
 \caption{Example Replication Topology}.
@@ -164,8 +159,8 @@ another edge aggregation layer, the same applies to its adjacent cloudlets.
 \end{figure}
 
 So effectively there is only a limitation for horizontally interconnected
-cloudlets cannot be replicating its state to each other. This corresponds to
-the acyclic graph (tree) topology.
+cloudlets cannot be replicating its state nor targeting operations to each other.
+This corresponds to the acyclic graph (tree) topology.
 
 For the example graph (Fig.~\ref{fig}), the $\mathrm{infrastructure\ edge}$ can
 replicate data, like contributing its local stats into the global view of
@@ -177,10 +172,21 @@ of the graph, $\mathrm{cloudlet3}$ and $\mathrm{cloudlet4}$ cannot replicate to
 each other, but can do to the edge aggregation layer $\mathrm{EAL1}$ either
 directly or consequently via $\mathrm{EAL5}$, $\mathrm{cloudlet2}$,
 $\mathrm{EAL4}$ and $\mathrm{EAL2}$, which is totally the replication
-implementation specific. We can also see that $\mathrm{EAL4}$ is
-hierarchically associated with $\mathrm{EAL2}$ and $\mathrm{EAL1}$, which is
-under control and/or management of either of two. But it is not associated with
-$\mathrm{EAL3}$, $\mathrm{cloudlet2}$ or anything sitting down of two.
+implementation specific. We also say that $\mathrm{EAL2}$ and $\mathrm{EAL1}$
+are hierarchically upper associated with $\mathrm{EAL4}$ and $\mathrm{EAL5}$,
+when we mean that the latter two are potential subordinates of either of the
+former two. Finally, we can say that $\mathrm{EAL4}$ controlls/manages
+$\mathrm{cloudlet2}$ and anything sitting down of it.
+
+That is, a control/manage-subordinate hierarchical association only defines
+influence domains and does not imply state replication as a mandatory thing nor
+imposes bidirectional data synchronization, but rather provides an opportunity
+of one-way or bidirectional state replications and regulates a possibility of
+issuing control/management operations.  State replication may be performed from
+subordinates to its upper associates, think of sending reports. Or vice versa,
+think of sending directives to subordinates. While control/management
+operations may only flow up-down, think of planning future work for
+subordinates.
 
 \textbf{Management Plane}: corresponds to administrative actions performed via
 configuration and lifecycle management systems. Such operations are typically
@@ -191,12 +197,13 @@ cloud infrastructure owners. For some cases, like Baremetal-as-a-Service,
 tenants may as well initiate actions executed via the management plane.
 Collecting logs, performance and usage statistics for monitoring and alerting
 systems also represents the management plane operations, although it operates
-with the cloud data. When we refer to an \textit{edge aggregation
-layer}\cite{b3} and cloudlets under its management, we mean exactly
-administrative/deployment related operations executed via the management plane.
-Similarly to the control plane, we impose the same data replication topology
-without nesting limitations but restricted only for horizontal graph
-connections.
+with the cloud data.
+
+When we refer to an edge aggregation layer and cloudlets under its
+control/management, we mean exactly any operations executed via the
+control/management planes of that edge aggregation layer and targeted for
+cloudlets sitting down the nested connections graph. And a replication topology
+regulates allowed targets for operations and state replication.
 
 \textbf{Data Replication Conflict}: according to\cite{b1}, two operations on
 the same target are in conflict if they are not related by causality.
@@ -239,8 +246,8 @@ requirements:
 operations}
 
 Any operations performed on cloudlets state\footnote{despite the cloudlets
-aliveness or failure conditions as it's shown in the global view of an adjacent
-or hierarchically associated edge aggregation layer} fit consistency models
+aliveness or failure conditions as it's shown in the global view of
+hierarchically upper associated edge aggregation layers} fit consistency models
 that allow the involved control/management planes operating as always
 available, and there is no limitations, like read-only or blocking
 access\footnote{operations may be queued for future processing in order to meet
@@ -257,8 +264,8 @@ Operations on cloudlets can be scheduled at any given moment of time, despite
 of inter-cloudlets network connectivity\footnote{for disconnected/partitioned
 cloudlets, data can be modified via local control/management plane, if it
 exists and not failed. Despite the quorum requirements of its hierarchically
-associated aggregation edge layers}. The same transitioning requirements for
-internal cloudlets state applies.
+upper associated aggregation edge layers}. The same transitioning requirements
+for internal cloudlets state applies.
 
 \subsubsection{Support fully autonomous or disconnected cloudlets}
 
@@ -283,8 +290,8 @@ reduce the associated memory and disc pressure for aggregation layers.
 \subsubsection{Provide a gloval view for cloudlets aliveness state}
 
 Global view of cloudlets needs to be periodically presented for at least one of
-the hierarchically associated aggregation edge layers. For example, with the
-state marks, like ``unknown'', or ``autonomous''; ``synchronizing'',
+the hierarchically upper associated aggregation edge layers. For example, with
+the state marks, like ``unknown'', or ``autonomous''; ``synchronizing'',
 ``connected''; ``failed'', or ``disconnected'', or ``fenced'', if and only if
 it is confirmed as failed, or manually disconnected, or fenced automatically.
 That poses the aliveness of the control/management planes principle.
@@ -298,9 +305,9 @@ cloudlets should provide the following operational capabilities
 \subsubsection{Keep control planes always available at best effort}
 
 CRUD (Create, Read, Update and Delete) operations on cloud data can always be
-requested via API/CLI of local cloudlets or associated aggregation layers
-sitting on top of the replication hierarchy. The same queuing requirements
-apply as it is defined for the autonomy requirements.
+requested via API/CLI of local cloudlets or hierarchically upper associated
+aggregation layers. The same queuing requirements apply as it is defined for
+the autonomy requirements.
 
 \subsubsection{Do not wait for edge agregation layers control planes for local
 operations}
@@ -318,7 +325,7 @@ for management planes of edge aggregation layers}
 Similarly the to control plane operations, deployed infrastructure edge nodes
 can always be scheduled for scaling up/down by the cloudlets local management
 planes, if it is possible\footnote{a cloudlet may be relying on the remote
-configuration management only}, or via its hierarchically associated
+configuration management only}, or via its hierarchically upper associated
 aggregation layers. Same queuing requirements apply.
 
 \subsubsection{Allow hotfixes and kernel/software updates applied locally for
@@ -386,7 +393,7 @@ requirement but is nice to have. Indeed, some state needs to be replicated
 one-way from aggregation edge layer to cloudlets under its control/management,
 like virtual machine or hardware provisioning images data. While logs,
 performance and metering statistics may be collected only from cloudlets to its
-hierarchically associated upper aggregation edge layers.
+hierarchically upper associated aggregation edge layers.
 
 OpenStack and OpenShift/Kubernetes, have yet support for neither global causal
 consistent data backends\footnote{that is, exclusively for cloud/deployment
@@ -506,7 +513,7 @@ by the costs of reduced local availability\footnote{that is, the local view for
 a cloudlet and have no impact onto global views}. That would work as weaker
 consistency guarantees work well, when built on top of the stronger ones, and
 provide an always available global view of cloudlets for hierarchically
-associated upper aggregation edge layers. Replicating the state changes via
+upper associated aggregation edge layers. Replicating the state changes via
 causal related operations and conflicts resolving via custom handlers is that
 COPS covers as well.
 
