@@ -23,11 +23,11 @@ Replication Challenges\\
 Poznan, Poland \\
 bdobreli@redhat.com}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address}
+\IEEEauthorblockN{2\textsuperscript{nd} Reedip Banerjee}
+\IEEEauthorblockA{\textit{Openstack Platform} \\
+\textit{Red Hat Inc.}\\
+Noida, India \\
+reedip.banerjee@gmail.com}
 \and
 \IEEEauthorblockN{3\textsuperscript{rd} Given Name Surname}
 \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
@@ -75,29 +75,30 @@ availability, Design
 
 \section{Introduction}
 
-OpenStack is an Infrastructure-as-a-Service platform number one for private
-cloud computing, and it becomes being so for fog computing as well.
-Hybridization and multi-cloud trends for private clouds interconnected with
-public clouds and Platform-as-a-Service (PaaS) solutions, like
+OpenStack is an Infrastructure-as-a-Service platform, which is the first choice 
+for private cloud computing, and it is being widely accepted for fog computing
+as well. Hybridization and multi-cloud trends for private clouds interconnected
+with public clouds and Platform-as-a-Service (PaaS) solutions, like
 OpenShift/Kubernetes, allow the containerization of micro-services oriented
 workloads to emerge in a highly portable, self-contained and the hosting
 cloud-agnostic way. Giving it massively distributed scale of fog computing and
-bringing the data it operates closer to end users, opens great opportunities
-for Internet of Things (IoT) and next-gen global telecommunication technologies,
+bringing the data it operates on closer to end users, opens up great opportunities
+for Internet of Things (IoT) and next-generation global telecommunication technologies,
 which first of all requires low-latency and highly responsive interfaces always
 available for end users.
 
 Speaking of always available, back to the system administration realities, the
-Edge clouds control and management plane capabilities in such a massively
-distributed world shall not fall behind as well. This paper positions
-challenges associated with replicating state, like cloud or deployment data
-and/or operations, and defines minimum viable operational capabilities to have
-it always available as the best effort. It finally brings vision of unified
-systems design approach for future data replication tooling to be implemented
-for or integrated into OpenStack IaaS, OpenShift/Kubernetes PaaS that may
-optionally reside on top of it, or as a separate compute platform, and stateful
-workloads designed for massively distributed scale, which is natural for Edge
-computing and IoT.
+capabilities of the Edge Cloud's Control and Management plane should not fall
+behind, in such a massively distributed world. A very important issue occurs when 
+data is being synchronized between a remote site and the central system causing a
+data conflict. This paper positions the challenges associated with the 
+replicating state, like cloud or deployment data and/or operations, and defines 
+minimum viable operational capabilities to have it always available as the best
+effort. It finally brings vision of unified systems design approach for future
+data replication tooling to be implemented for or integrated into OpenStack IaaS,
+OpenShift/Kubernetes PaaS that may optionally reside on top of it, or as a separate
+compute platform, and stateful workloads designed for massively distributed scale,
+which is natural for Edge computing and IoT.
 
 \section{Glossary}
 
@@ -158,12 +159,12 @@ including \textit{edge aggregation layers}\cite{b3}.
 \end{forest}
 \end{figure}
 
-So effectively there is only a limitation for horizontally interconnected
-cloudlets cannot be replicating its state nor targeting operations to each other.
+So effectively there is a limitation that horizontally interconnected
+cloudlets can replicate neither their state nor targeting operations to each other.
 This corresponds to the acyclic graph (tree) topology.
 
 For the example graph (Fig.~\ref{fig}), the $\mathrm{infrastructure\ edge}$ can
-replicate data, like contributing its local stats into the global view of
+replicate data, like contributing its local statistics into the global view of
 hardware and performance metrics, to the the edge aggregation layer
 $\mathrm{EAL1}$ omitting the $\mathrm{access\ edge\ layer}$. Meanwhile the
 latter can be pushing something, like deployment data changes, to the
